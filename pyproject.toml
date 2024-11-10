@@ -1,0 +1,16 @@
+[project]
+name = "faster-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dependency-injector>=4.43.0",
+    "fastapi[standard]>=0.115.4",
+]
+
+[dependency-groups]
+dev = [
+    "docker>=7.1.0",
+    "pytest>=8.3.3",
+]
