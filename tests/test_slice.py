@@ -5,29 +5,19 @@ from unittest.mock import Mock
 from dependency_injector import providers
 from fastapi.testclient import TestClient
 
-from app.container import Container
-from app.messages import MessagesController
-from app.messages.messages_models import Message
+from app.container import RootContainer
+from app.messages.messages_service import MessagesService
 
 
 def test_app_slice():
-    mock_messages_controller = Mock(spec=MessagesController)
-    client = client_with_override(
-        lambda c: c.routers.messages_controller.override(
-            providers.Factory(lambda: mock_messages_controller),
-        ),
-    )
-    mock_messages_controller.get_first_message.return_value = Message(
-        message="Nothing"
-    )
+    container = RootContainer()
+    container.services.messages.override(providers.Object(Mock(spec=MessagesService)))
+    client = TestClient(container.app())
+    mock_messages_service = container.services.messages()
+    mock_messages_service.get_message.return_value = "Nothing"
+
     response = client.get("/messages/first")
+
     assert response.status_code == HTTPStatus.OK
     assert response.json() == dict(message="Nothing")
-    mock_messages_controller.get_first_message.assert_called_once_with()
-
-
-def client_with_override(override: Callable[[Container], None]) -> TestClient:
-    container = Container()
-    override(container)
-    container.init_resources()
-    return TestClient(container.app())
+    mock_messages_service.get_message.assert_called_once_with()

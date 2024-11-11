@@ -17,6 +17,8 @@ from docker.models.images import Image
 from fastapi import FastAPI
 from uvicorn import Config, Server
 
+from app.container import RootContainer
+
 client = DockerClient.from_env()
 
 Status = tp.Literal["created", "restarting", "running", "removing", "paused", "exited", "dead"]
@@ -92,8 +94,7 @@ def base_url(container: Container) -> str:
 
 @pytest.fixture(scope="module")
 async def httpx_client() -> tp.Generator[httpx.AsyncClient, None, None]:
-    from app.application import app
-    with TestServer.random_port(app) as server:
+    with TestServer.random_port(RootContainer().app()) as server:
         async with httpx.AsyncClient(base_url=server.url) as client_:
             yield client_
 

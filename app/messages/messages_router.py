@@ -12,7 +12,7 @@ class MessagesController(ABC):
 
 
 def create_router(controller: MessagesController) -> APIRouter:
-    router = APIRouter(prefix="/messages")
+    router = APIRouter(prefix="/messages", tags=["messages"])
 
     @router.get("/first")
     def _() -> Message:
